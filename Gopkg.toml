@@ -1,0 +1,4 @@
+[[constraint]]
+  name = "github.com/docker/go-plugins-helpers"
+  revision = "abb3e589c0322ddc019c2ec5f587ea0df2024869"
+
