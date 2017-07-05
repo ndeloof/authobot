@@ -1,0 +1,26 @@
+{
+  "Description": "Authorization plugin for Docker",
+  "Documentation": "https://github.com/ndeloof/authobot/blob/master/README.md",
+  "Entrypoint": [
+    "/bin/authobot"
+  ],
+
+  "Interface": {
+    "Socket": "authobot.sock",
+    "Types": [
+      "docker.authz/1.0"
+    ]
+  },
+  "Linux": {
+    "Capabilities": null,
+    "AllowAllDevices": false,
+    "Devices": null
+  },
+  "Mounts": [
+    {
+      "Destination": "/var/lib/docker/plugins/",
+      "Source": "/var/lib/docker/plugins/",
+      "Type": "bind"
+    }
+  ]
+}

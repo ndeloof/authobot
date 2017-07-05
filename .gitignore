@@ -5,3 +5,5 @@ authobot
 # use `dep ensure` to manage vendor content
 vendor/
 Gopkg.lock
+
+rootfs/
