@@ -10,20 +10,5 @@
     "Types": [
       "docker.authz/1.0"
     ]
-  },
-  "Linux": {
-    "Capabilities": null,
-    "AllowAllDevices": false,
-    "Devices": null
-  },
-  "Mounts": [
-    {
-      "Destination": "/run/docker/plugins",
-      "Source": "/run/docker/plugins",
-      "Type": "bind",
-      "options": [
-        "rbind"
-      ]
-    }
-  ]
+  }
 }
