@@ -18,9 +18,12 @@
   },
   "Mounts": [
     {
-      "Destination": "/var/lib/docker/plugins/",
-      "Source": "/var/lib/docker/plugins/",
-      "Type": "bind"
+      "Destination": "/run/docker/plugins",
+      "Source": "/run/docker/plugins",
+      "Type": "bind",
+      "options": [
+        "rbind"
+      ]
     }
   ]
 }
