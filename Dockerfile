@@ -5,5 +5,5 @@ COPY . /go/src/app
 RUN go build
 
 FROM golang:alpine
-COPY --from=build /go/src/app/authobot /bin/authobot
+COPY --from=build /go/src/app/app /bin/authobot
 ENTRYPOINT ["/bin/authobot"]
