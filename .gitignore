@@ -4,4 +4,4 @@ authobot
 
 # use `dep ensure` to manage vendor content
 vendor/
-Gopgk.lock
+Gopkg.lock

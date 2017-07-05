@@ -1,4 +1,4 @@
-[[constraint]]
-  name = "github.com/docker/go-plugins-helpers"
-  revision = "abb3e589c0322ddc019c2ec5f587ea0df2024869"
 
+[[override]]
+  name = "github.com/docker/go-connections"
+  revision = "3ede32e2033de7505e6500d6c868c2b9ed9f169d"

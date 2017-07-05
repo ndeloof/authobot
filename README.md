@@ -21,3 +21,10 @@ installation:
 ```
  docker plugin install ndeloof/authobot
 ```
+
+## Contribute / hack
+
+we use [dep](https://github.com/golang/dep) to manage dependencies.
+run `dep ensure` to generate a local `vendor` folder so you can hack and build the plugin.
+
+
