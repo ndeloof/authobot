@@ -3,12 +3,9 @@ package main
 import (
 	"bytes"
 	"encoding/json"
-	"net/http"
 	"net/url"
 	"regexp"
 
-	"github.com/docker/docker/api"
-	"github.com/docker/engine-api/client"
 	"github.com/docker/go-plugins-helpers/authorization"
 	"github.com/docker/engine-api/types/container"
 	"github.com/docker/engine-api/types/mount"
@@ -16,13 +13,8 @@ import (
 	"fmt"
 )
 
-func newPlugin(dockerHost string) (*authobot, error) {
-	var transport *http.Client
-	client, err := client.NewClient(dockerHost, api.DefaultVersion, transport, nil)
-	if err != nil {
-		return nil, err
-	}
-	return &authobot{client: client}, nil
+func newPlugin() (*authobot, error) {
+	return &authobot{}, nil
 }
 
 var (
@@ -33,31 +25,32 @@ var (
 		*regexp.MustCompile(`/version`),
 
 		*regexp.MustCompile(`/containers/create`),
-		*regexp.MustCompile(`/containers/*/start`),
-		*regexp.MustCompile(`/containers/*/stop`),
-		*regexp.MustCompile(`/containers/*/kill`),
-		*regexp.MustCompile(`/containers/*/json`), // inspect
-		*regexp.MustCompile(`/containers/*/exec`),
-		*regexp.MustCompile(`/exec/*/start`),
-		*regexp.MustCompile(`/exec/*/json`),
+		*regexp.MustCompile(`/containers/.+/start`),
+		*regexp.MustCompile(`/containers/.+/stop`),
+		*regexp.MustCompile(`/containers/.+/kill`),
+		*regexp.MustCompile(`/containers/.+/json`), // inspect
+		*regexp.MustCompile(`/containers/.+/exec`),
+		*regexp.MustCompile(`/exec/.+/start`),
+		*regexp.MustCompile(`/exec/.+/json`),
 
 		*regexp.MustCompile(`/build`),
 		*regexp.MustCompile(`/images/create`), // pull
-		*regexp.MustCompile(`/images/*/json`), // inspect
-		*regexp.MustCompile(`/images/*/push`),
-		*regexp.MustCompile(`/images/*/tag`),
-		*regexp.MustCompile(`/images/*`), // remove
+		*regexp.MustCompile(`/images/.+/json`), // inspect
+		*regexp.MustCompile(`/images/.+/push`),
+		*regexp.MustCompile(`/images/.+/tag`),
+		*regexp.MustCompile(`/images/.+`), // remove
 	}
 )
 
 type authobot struct {
-	client *client.Client
 }
 
 type configWrapper struct {
 	*container.Config
 	HostConfig       *container.HostConfig
 }
+
+// --- implement authorization.Plugin
 
 func (p *authobot) AuthZReq(req authorization.Request) authorization.Response {
 	uri, err := url.QueryUnescape(req.RequestURI)
@@ -98,6 +91,12 @@ func (p *authobot) AuthZReq(req authorization.Request) authorization.Response {
 	return authorization.Response{Msg: uri + " API is not allowed"}
 }
 
+func (p *authobot) AuthZRes(req authorization.Request) authorization.Response {
+	return authorization.Response{Allow: true}
+}
+
+// ---
+
 func (p *authobot) Authorized(uri string) error {
 	for _, m := range whitelist {
 		if m.MatchString(uri) {
@@ -107,6 +106,3 @@ func (p *authobot) Authorized(uri string) error {
 	return errors.New(uri + " is not authorized")
 }
 
-func (p *authobot) AuthZRes(req authorization.Request) authorization.Response {
-	return authorization.Response{Allow: true}
-}
