@@ -26,7 +26,7 @@ create rootfs directory, and export container filesystem
 ```
 rm -rf rootfs
 mkdir rootfs
-ID=$(docker run -d authobot)
+ID=$(docker run -d authobot:latest)
 docker export $ID | tar -x -C rootfs
 docker kill $ID
 docker rm $ID
@@ -37,3 +37,5 @@ Then, install and enable plugin on your local docker daemon
 docker plugin create authobot $(pwd)
 docker plugin enable authobot
 ``` 
+
+change docker daemon configuration to include `--authorization-plugin=authobot` and restart daemon.

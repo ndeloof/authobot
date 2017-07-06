@@ -11,6 +11,7 @@ import (
 	"github.com/docker/engine-api/types/mount"
 	"github.com/pkg/errors"
 	"fmt"
+	"strings"
 )
 
 func newPlugin() (*authobot, error) {
@@ -22,23 +23,23 @@ var (
 
 	whitelist = []regexp.Regexp{
 		*regexp.MustCompile(`/_ping`),
-		*regexp.MustCompile(`/version`),
+		*regexp.MustCompile(`/v.*/version`),
 
-		*regexp.MustCompile(`/containers/create`),
-		*regexp.MustCompile(`/containers/.+/start`),
-		*regexp.MustCompile(`/containers/.+/stop`),
-		*regexp.MustCompile(`/containers/.+/kill`),
-		*regexp.MustCompile(`/containers/.+/json`), // inspect
-		*regexp.MustCompile(`/containers/.+/exec`),
-		*regexp.MustCompile(`/exec/.+/start`),
-		*regexp.MustCompile(`/exec/.+/json`),
+		*regexp.MustCompile(`/v.*/containers/create`),
+		*regexp.MustCompile(`/v.*/containers/.+/start`),
+		*regexp.MustCompile(`/v.*/containers/.+/stop`),
+		*regexp.MustCompile(`/v.*/containers/.+/kill`),
+		*regexp.MustCompile(`/v.*/containers/.+/json`), // inspect
+		*regexp.MustCompile(`/v.*/containers/.+/exec`),
+		*regexp.MustCompile(`/v.*/exec/.+/start`),
+		*regexp.MustCompile(`/v.*/exec/.+/json`),
 
-		*regexp.MustCompile(`/build`),
-		*regexp.MustCompile(`/images/create`), // pull
-		*regexp.MustCompile(`/images/.+/json`), // inspect
-		*regexp.MustCompile(`/images/.+/push`),
-		*regexp.MustCompile(`/images/.+/tag`),
-		*regexp.MustCompile(`/images/.+`), // remove
+		*regexp.MustCompile(`/v.*/build`),
+		*regexp.MustCompile(`/v.*/images/create`), // pull
+		*regexp.MustCompile(`/v.*/images/.+/json`), // inspect
+		*regexp.MustCompile(`/v.*/images/.+/push`),
+		*regexp.MustCompile(`/v.*/images/.+/tag`),
+		*regexp.MustCompile(`/v.*/images/.+`), // remove
 	}
 )
 
@@ -53,14 +54,21 @@ type configWrapper struct {
 // --- implement authorization.Plugin
 
 func (p *authobot) AuthZReq(req authorization.Request) authorization.Response {
+
 	uri, err := url.QueryUnescape(req.RequestURI)
 	if err != nil {
 		return authorization.Response{Err: err.Error()}
 	}
 
-	fmt.Println("checking request to "+uri+" from user : "+req.User);
+	// Remove query parameters
+	i := strings.Index(uri, "?")
+	if i > 0 {
+		uri = uri[:i]
+	}
 
-	err = p.Authorized(uri);
+	fmt.Println("checking request to "+uri+" from user : "+req.User)
+
+	err = p.Authorized(uri)
 	if err != nil {
 		return authorization.Response{Err: err.Error()}
 	}
@@ -92,6 +100,7 @@ func (p *authobot) AuthZReq(req authorization.Request) authorization.Response {
 }
 
 func (p *authobot) AuthZRes(req authorization.Request) authorization.Response {
+	fmt.Println("AuthZRes");
 	return authorization.Response{Allow: true}
 }
 
