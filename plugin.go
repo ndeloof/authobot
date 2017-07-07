@@ -31,6 +31,8 @@ var (
 		*regexp.MustCompile(`/v.*/containers/.+/kill`),
 		*regexp.MustCompile(`/v.*/containers/.+/json`), // inspect
 		*regexp.MustCompile(`/v.*/containers/.+/exec`),
+		*regexp.MustCompile(`/v.*/containers/.+/attach`),
+		*regexp.MustCompile(`/v.*/containers/.+/wait`),
 		*regexp.MustCompile(`/v.*/exec/.+/start`),
 		*regexp.MustCompile(`/v.*/exec/.+/json`),
 
@@ -66,7 +68,7 @@ func (p *authobot) AuthZReq(req authorization.Request) authorization.Response {
 		uri = uri[:i]
 	}
 
-	fmt.Println("checking request to "+uri+" from user : "+req.User)
+	fmt.Println("checking request to '"+uri+"' from user : "+req.User)
 
 	err = p.Authorized(uri)
 	if err != nil {
@@ -92,15 +94,13 @@ func (p *authobot) AuthZReq(req authorization.Request) authorization.Response {
 				}
 
 			}
-			return authorization.Response{Allow: true}
 		}
 	}
 
-	return authorization.Response{Msg: uri + " API is not allowed"}
+	return authorization.Response{Allow: true}
 }
 
 func (p *authobot) AuthZRes(req authorization.Request) authorization.Response {
-	fmt.Println("AuthZRes");
 	return authorization.Response{Allow: true}
 }
 
