@@ -83,18 +83,19 @@ func (p *authobot) AuthZReq(req authorization.Request) authorization.Response {
 			if err := json.NewDecoder(bytes.NewReader(req.RequestBody)).Decode(body); err != nil {
 				return authorization.Response{Err: err.Error()}
 			}
-			if len(body.Volumes) > 0 {
-				return authorization.Response{Msg: "use of volumes is not allowed"}
-			}
+
 			if body.HostConfig.Privileged {
 				return authorization.Response{Msg: "use of Privileged contianers is not allowed"}
 			}
+
+			// Binds is the old API
 			for _, b := range body.HostConfig.Binds {
 				if (b[:1] == "/") {
 					return authorization.Response{Msg: "use of bind mounts is not allowed"}
 				}
 			}
 
+			// Mounts is the new API
 			for _, m := range body.HostConfig.Mounts {
 				if m.Type == mount.TypeBind {
 					return authorization.Response{Msg: "use of bind mounts is not allowed"}
