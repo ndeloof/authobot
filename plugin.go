@@ -19,13 +19,13 @@ func newPlugin() (*authobot, error) {
 }
 
 var (
-	create = regexp.MustCompile(`/containers/create`)
+	create = regexp.MustCompile(`/v.*/containers/create`)
 
 	whitelist = []regexp.Regexp{
 		*regexp.MustCompile(`/_ping`),
 		*regexp.MustCompile(`/v.*/version`),
 
-		*regexp.MustCompile(`/v.*/containers/create`),
+		*create,
 		*regexp.MustCompile(`/v.*/containers/.+/start`),
 		*regexp.MustCompile(`/v.*/containers/.+/stop`),
 		*regexp.MustCompile(`/v.*/containers/.+/kill`),
@@ -33,6 +33,7 @@ var (
 		*regexp.MustCompile(`/v.*/containers/.+/exec`),
 		*regexp.MustCompile(`/v.*/containers/.+/attach`),
 		*regexp.MustCompile(`/v.*/containers/.+/wait`),
+		*regexp.MustCompile(`/v.*/containers/.+/resize`),
 		*regexp.MustCompile(`/v.*/exec/.+/start`),
 		*regexp.MustCompile(`/v.*/exec/.+/json`),
 
@@ -68,7 +69,7 @@ func (p *authobot) AuthZReq(req authorization.Request) authorization.Response {
 		uri = uri[:i]
 	}
 
-	fmt.Println("checking request to '"+uri+"' from user : "+req.User)
+	fmt.Println("checking "+req.RequestMethod+" request to '"+uri+"' from user : "+req.User)
 
 	err = p.Authorized(uri)
 	if err != nil {
@@ -88,6 +89,12 @@ func (p *authobot) AuthZReq(req authorization.Request) authorization.Response {
 			if body.HostConfig.Privileged {
 				return authorization.Response{Msg: "use of Privileged contianers is not allowed"}
 			}
+			for _, b := range body.HostConfig.Binds {
+				if (b[:1] == "/") {
+					return authorization.Response{Msg: "use of bind mounts is not allowed"}
+				}
+			}
+
 			for _, m := range body.HostConfig.Mounts {
 				if m.Type == mount.TypeBind {
 					return authorization.Response{Msg: "use of bind mounts is not allowed"}

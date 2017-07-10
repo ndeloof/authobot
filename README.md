@@ -15,6 +15,38 @@ We prevent
 We also provide a whitelist of authorized API URIs, based on docker-pipeline / declarative-pipeline requirements.
 Any other API call will be rejected.
 
+## Samples 
+
+```
+➜ #
+➜ # let's run a container 
+➜ #
+➜ docker run --rm -t  ubuntu echo Hello
+Hello
+
+➜ #
+➜ # let's now run a _privileged_ container (can access hosts' devices)
+➜ #
+➜ docker run --rm -t --privileged ubuntu echo Hello
+docker: Error response from daemon: authorization denied by plugin authobot:latest: use of Privileged contianers is not allowed.
+See 'docker run --help'.
+
+➜ #
+➜ # hum, let's bind mount host filesystem to hack all it's secrets
+➜ #
+➜ docker run --rm -t -v /:/host ubuntu echo Hello
+docker: Error response from daemon: authorization denied by plugin authobot:latest: use of bind mounts is not allowed.
+See 'docker run --help'.
+
+➜ #
+➜ # ok, let's just mount a volume to persist our data
+➜ #
+➜ docker run --rm -t -v some_volume:/host ubuntu echo Hello
+Hello
+```
+
+
+
 ## Contribute / hack
 
 we use [dep](https://github.com/golang/dep) to manage dependencies.
